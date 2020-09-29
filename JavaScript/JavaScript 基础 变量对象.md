@@ -1,7 +1,7 @@
 # JavaScript 基础 变量对象 Variable Object
 
 ## 基础知识
-###变量对象VO
+### 变量对象VO
 在一个 执行上下文`Execution Context` 的 创建阶段 确定。
 ![](./assets/JavaScript-基础-变量对象-00.png)
 
@@ -44,7 +44,7 @@ var foo = 20;
 ```
 
 ```js
-// 上栗的执行顺序为
+// 上例的执行顺序为
 
 // 首先将所有函数声明放入变量对象中
 function foo() { console.log('function foo') }
