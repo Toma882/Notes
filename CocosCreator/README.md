@@ -4,7 +4,7 @@
 
 * [监听和发射事件](https://docs.cocos.com/creator/manual/zh/scripting/events.html)
 * [系统内置事件/节点系统事件/cc.Node.EventType.X](https://docs.cocos.com/creator/manual/zh/scripting/internal-events.html)
-* [玩家输入事件/全局系统事件/cc.systemEvent.EventType.X](https://docs.cocos.com/creator/manual/zh/scripting/internal-events.html)
+* [玩家输入事件/全局系统事件/cc.systemEvent.EventType.X](https://docs.cocos.com/creator/manual/zh/scripting/player-controls.html)
 
 ## 资源
 
