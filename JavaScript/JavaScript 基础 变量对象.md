@@ -2,7 +2,9 @@
 
 ## 基础知识
 ### 变量对象VO
+
 在一个 执行上下文`Execution Context` 的 创建阶段 确定。
+
 ![](./assets/JavaScript-基础-变量对象-00.png)
 
 ### [arguments](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/arguments)  
