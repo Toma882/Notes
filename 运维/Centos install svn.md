@@ -1,19 +1,5 @@
 
 ```
-svnserve -d -r /usr/local/svn --config-file /usr/local/svn/conf/svnserve.conf
-mv svnserve.conf conf/
-mv passwd conf/
-mv authz conf/
-mkdir conf
-svnserve -d -r /usr/local/svn/
-vim svnserve.conf
-vim passwd
-vim authz
-
-svnadmin create sgss_server
-svnadmin create sgss_cdn
-svnadmin create sgss_install
-
 yum install subversion
 cd /usr/local/
 mkdir svn
