@@ -9,6 +9,28 @@
 > Unity 官方主要是用 Cg/HLSL 编写 Shader 程序片段。  
 > Cocos 主要用的是 GLSL 编写 Shader 。
 
+```GLSL
+// 着色器的开头总是要声明版本
+#version version_number
+
+// 输入
+in type in_variable_name;
+in type in_variable_name;
+// 输出
+out type out_variable_name;
+
+// uniform
+uniform type uniform_name;
+
+// main入口函数
+int main()
+{
+  // 处理输入并进行一些图形操作
+  ...
+  // 输出处理过的结果到输出变量
+  out_variable_name = weird_stuff_we_processed;
+}
+```
 ## 变量
 ### 变量及变量类型
 
@@ -373,6 +395,10 @@ void main(void) {
 
 ### uniform 限定符
 `uniform` 是 GLSL 中的一种变量类型限定符，用于存储应用程序通过 GLSL 传递给着色器的只读值。
+
+Uniform 是一种从CPU中的应用向GPU中的着色器发送数据的方式，但 `uniform` 和顶点属性有些不同。首先， `uniform` 是**全局的(Global)**。全局意味着 `uniform` 变量必须在每个着色器程序对象中都是独一无二的，而且它可以被着色器程序的任意着色器在任意阶段访问。第二，无论你把 `uniform` 值设置成什么， `uniform` 会一直保存它们的数据，直到它们被重置或更新。
+
+
 **使用 `uniform` 设定在一帧的所有绘制中相同的数据，例如光源颜色、亮度、全局变换以及透视数据等等。**
  `uniform` 可以用来存储着色器需要的各种数据，如变换矩阵、光参数和颜色等。传递给着色器的在所有的顶点着色器和片段着色器中保持不变的的任何参数，基本上都应该通过 `uniform` 来存储。 `uniform` 变量在全局区声明，以下是 `uniform` 的一些示例：
 
@@ -388,7 +414,7 @@ uniform vec3 lightPosition;
 
 
 ### varying 限定符
-GLSL 中最后一个要说的存储限定符是 `varying` 。 `varying` 存储的是顶点着色器的输出，同时作为片段着色器的输入，通常顶点着色器都会把需要传递给片段着色器的数据存储在一个或多个 `varying` 变量中。这些变量在片段着色器中需要有相对应的声明且数据类型一致，然后在光栅化过程中进行插值计算。以下是一些 `varying` 变量的声明：
+GLSL 中最后一个要说的存储限定符是 `varying` 。 `varying` 存储的是**顶点着色器的输出，同时作为片段着色器的输入**，通常顶点着色器都会把需要传递给片段着色器的数据存储在一个或多个 `varying` 变量中。这些变量在片段着色器中需要有相对应的声明且数据类型一致，然后在光栅化过程中进行插值计算。以下是一些 `varying` 变量的声明：
 
 ```GLSL
 varying vec2 texCoord;
