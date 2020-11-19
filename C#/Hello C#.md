@@ -129,16 +129,15 @@ ToInt32();
 
 
 
-### C# 可空类型
+### C# 可空类型 Nullable
 
-** Nullable **
 
 C# 提供了一个特殊的数据类型，`nullable` 类型（可空类型），可空类型可以表示其基础值类型正常范围内的值，再加上一个 `null` 值。
 
 例如，`Nullable< Int32 >`，读作"可空的 Int32"，可以被赋值为 `-2,147,483,648` 到 `2,147,483,647` 之间的任意值，也可以被赋值为 `null` 值。类似的，`Nullable< bool >` 变量可以被赋值为 `true` 或 `false` 或 `null`。
 
 
-`??` 判断是否为空
+#### `??` 判断是否为空
 
 ```c#
 using System;
@@ -327,12 +326,12 @@ struct Books
 
 您已经用了一个简单的名为 Books 的结构。在 C# 中的结构与传统的 C 或 C++ 中的结构不同。C# 中的结构有一下特点：
 * 结构可带有方法、字段、索引、属性、运算符方法和事件。
-* 结构可定义构造函数，但不能定义析构函数。但是，您不能为结构定义默认的构造函数。默认的* * 构造函数是自动定义的，且不能被改变。
+* 结构可定义构造函数，但不能定义析构函数。但是，您不能为结构定义默认的构造函数。默认的构造函数是自动定义的，且不能被改变。
 * 与类不同，结构不能继承其他的结构或类。
 * 结构不能作为其他结构或类的基础结构。
 * 结构可实现一个或多个接口。
 * 结构成员不能指定为 abstract、virtual 或 protected。
-* 当您使用 New 操作符创建一个结构对象时，会调用适当的构造函数来创建结构。与类不同，结* * 构可以不使用 New 操作符即可被实例化。
+* 当您使用 New 操作符创建一个结构对象时，会调用适当的构造函数来创建结构。与类不同，结构可以不使用 New 操作符即可被实例化。
 * 如果不使用 New 操作符，只有在所有的字段都被初始化之后，字段才被赋值，对象才被使用。
 
 **类 vs 结构**
@@ -454,48 +453,252 @@ namespace InheritanceApplication
 **静态多态性**
 在编译时，函数和对象的连接机制被称为早期绑定，也被称为静态绑定。C# 提供了两种技术来实现静态多态性。分别为：
 * 函数重载
-* 运算符重载
-
-**函数重载**
-
-```c#
-using System;
-namespace PolymorphismApplication
-{
-   class Printdata
+   ```c#
+   using System;
+   namespace PolymorphismApplication
    {
-      void print(int i)
+      class Printdata
       {
-         Console.WriteLine("Printing int: {0}", i );
-      }
+         void print(int i)
+         {
+            Console.WriteLine("Printing int: {0}", i );
+         }
 
-      void print(double f)
-      {
-         Console.WriteLine("Printing float: {0}" , f);
-      }
+         void print(double f)
+         {
+            Console.WriteLine("Printing float: {0}" , f);
+         }
 
-      void print(string s)
-      {
-         Console.WriteLine("Printing string: {0}", s);
-      }
-      static void Main(string[] args)
-      {
-         Printdata p = new Printdata();
-         // 调用 print 来打印整数
-         p.print(5);
-         // 调用 print 来打印浮点数
-         p.print(500.263);
-         // 调用 print 来打印字符串
-         p.print("Hello C++");
-         Console.ReadKey();
+         void print(string s)
+         {
+            Console.WriteLine("Printing string: {0}", s);
+         }
+         static void Main(string[] args)
+         {
+            Printdata p = new Printdata();
+            // 调用 print 来打印整数
+            p.print(5);
+            // 调用 print 来打印浮点数
+            p.print(500.263);
+            // 调用 print 来打印字符串
+            p.print("Hello C++");
+            Console.ReadKey();
+         }
       }
    }
-}
-```
+   ```
+* 运算符重载
+   ```c#
+   public static Class oprator+ ( Class c1, Class c2 )
+   {
+   }
+   public static bool oprator== ( Class c1, Class c2 )
+   {
+      return true;
+   }
+   ```
+
+   ```c#
+   using System;
+
+   namespace OperatorOvlApplication
+   {
+      class Box
+      {
+         private double length;      // 长度
+         private double breadth;     // 宽度
+         private double height;      // 高度
+         
+         public double getVolume()
+         {
+            return length * breadth * height;
+         }
+         public void setLength( double len )
+         {
+            length = len;
+         }
+         public void setBreadth( double bre )
+         {
+            breadth = bre;
+         }
+         public void setHeight( double hei )
+         {
+            height = hei;
+         }
+
+         // 重载 + 运算符来把两个 Box 对象相加
+         public static Box operator+ (Box b, Box c)
+         {
+            Box box = new Box();
+            box.length = b.length + c.length;
+            box.breadth = b.breadth + c.breadth;
+            box.height = b.height + c.height;
+            return box;
+         }
+         public static bool operator == (Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length == rhs.length && lhs.height == rhs.height 
+               && lhs.breadth == rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public static bool operator !=(Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length != rhs.length || lhs.height != rhs.height 
+               || lhs.breadth != rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public static bool operator <(Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length < rhs.length && lhs.height 
+               < rhs.height && lhs.breadth < rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public static bool operator >(Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length > rhs.length && lhs.height 
+               > rhs.height && lhs.breadth > rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public static bool operator <=(Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length <= rhs.length && lhs.height 
+               <= rhs.height && lhs.breadth <= rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public static bool operator >=(Box lhs, Box rhs)
+         {
+            bool status = false;
+            if (lhs.length >= rhs.length && lhs.height 
+               >= rhs.height && lhs.breadth >= rhs.breadth)
+            {
+               status = true;
+            }
+            return status;
+         }
+         public override string ToString()
+         {
+            return String.Format("({0}, {1}, {2})", length, breadth, height);
+         }
+      
+      }
+      
+      class Tester
+      {
+         static void Main(string[] args)
+         {
+         Box Box1 = new Box();          // 声明 Box1，类型为 Box
+         Box Box2 = new Box();          // 声明 Box2，类型为 Box
+         Box Box3 = new Box();          // 声明 Box3，类型为 Box
+         Box Box4 = new Box();
+         double volume = 0.0;   // 体积
+
+         // Box1 详述
+         Box1.setLength(6.0);
+         Box1.setBreadth(7.0);
+         Box1.setHeight(5.0);
+
+         // Box2 详述
+         Box2.setLength(12.0);
+         Box2.setBreadth(13.0);
+         Box2.setHeight(10.0);
+
+         // 使用重载的 ToString() 显示两个盒子
+         Console.WriteLine("Box1： {0}", Box1.ToString());
+         Console.WriteLine("Box2： {0}", Box2.ToString());
+         
+         // Box1 的体积
+         volume = Box1.getVolume();
+         Console.WriteLine("Box1 的体积： {0}", volume);
+
+         // Box2 的体积
+         volume = Box2.getVolume();
+         Console.WriteLine("Box2 的体积： {0}", volume);
+
+         // 把两个对象相加
+         Box3 = Box1 + Box2;
+         Console.WriteLine("Box3： {0}", Box3.ToString());
+         // Box3 的体积
+         volume = Box3.getVolume();
+         Console.WriteLine("Box3 的体积： {0}", volume);
+
+         //comparing the boxes
+         if (Box1 > Box2)
+            Console.WriteLine("Box1 大于 Box2");
+         else
+            Console.WriteLine("Box1 不大于 Box2");
+         if (Box1 < Box2)
+            Console.WriteLine("Box1 小于 Box2");
+         else
+            Console.WriteLine("Box1 不小于 Box2");
+         if (Box1 >= Box2)
+            Console.WriteLine("Box1 大于等于 Box2");
+         else
+            Console.WriteLine("Box1 不大于等于 Box2");
+         if (Box1 <= Box2)
+            Console.WriteLine("Box1 小于等于 Box2");
+         else
+            Console.WriteLine("Box1 不小于等于 Box2");
+         if (Box1 != Box2)
+            Console.WriteLine("Box1 不等于 Box2");
+         else
+            Console.WriteLine("Box1 等于 Box2");
+         Box4 = Box3;
+         if (Box3 == Box4)
+            Console.WriteLine("Box3 等于 Box4");
+         else
+            Console.WriteLine("Box3 不等于 Box4");
+
+         Console.ReadKey();
+         }
+      }
+   }
+   ```
+
+
 
 **动态多态性**
 * 抽象类 abstract
+  * 反映的是事物的 **内部共性**
+  * 抽象类 **不能** 实例化
+  * 抽象类 可以继承 抽象类，且只能 **单一** 继承
+  * abstruct 抽象方法 只能在 抽象类 中声明，且 **没有方法体**
+  * 抽象类的成员 可以**有访问级别**
+  * 子抽象类 继承 父抽象类，可以有**选择性**的 override 实现
+  * 派生类必须实现 abstruct 抽象方法， virtual 虚方法可以不用实现
+  
 * 虚方法 virtual
+  * virtual方法 表示**此方法可以被重写, 这是最重要的特征**，也就是说这个方法具有 **多态**
+  * virtual方法 可以直接使用，和普通方法一样
+  * 必须拥有方法体`{}`
+  * 可以被子类 override，也可以直接使用父类的方法
+  * `sealed` 关键字标示此方法不可以被重写
+
+* 接口 interface
+  * 反映的是事物的**外部特性**，派生类实现的 **全部public级别**
+  * 可以被继承
+  * 不能被实例化
+  * 派生类必须实现未实现的方法
+  * 接口可以被多重实现
 
 ```c#
 using System;
@@ -533,6 +736,8 @@ public class Test
 }
 ```
 
+
+
 **抽象类（abstract）和接口（interface）的区别**
 
 相同点：  
@@ -543,8 +748,7 @@ public class Test
 不同点：  
 * 接口可以被多重实现，抽象类只能单一被继承
 * 抽象类是从一系列相关对象中抽象出来的概念，因此反映的是事物的**内部共性**，抽象类的成员可以具有访问级别，**可以有私有方法**，抽象的子类可以**选择性实现**其基类的抽象方法（抽象方法只能在与抽象类当中）；
-* 接口是为了满足外部调用而定义的一个功能约定，因映的是事物的**外部特性**，成员**全部public级别**，而接口的子类必须实现
-
+* 接口是为了满足外部调用而定义的一个功能约定，因此反映的是事物的**外部特性**，成员**全部public级别**，而接口的子类必须实现
 
 一般应用里，最顶级的是接口，然后是抽象类实现接口，最后才到具体类实现
 
@@ -565,192 +769,7 @@ public class Animal
 抽象方法必须在抽象类中声明，抽象方法必须在派生类中重写，虚方法则不必
 
 
-### C# 运算符重载
-```c#
-public static Class oprator+ ( Class c1, Class c2 )
-{
-}
-public static bool oprator== ( Class c1, Class c2 )
-{
-	return true;
-}
-```
 
-```c#
-using System;
-
-namespace OperatorOvlApplication
-{
-    class Box
-    {
-       private double length;      // 长度
-       private double breadth;     // 宽度
-       private double height;      // 高度
-      
-       public double getVolume()
-       {
-         return length * breadth * height;
-       }
-      public void setLength( double len )
-      {
-          length = len;
-      }
-      public void setBreadth( double bre )
-      {
-          breadth = bre;
-      }
-      public void setHeight( double hei )
-      {
-          height = hei;
-      }
-
-      // 重载 + 运算符来把两个 Box 对象相加
-      public static Box operator+ (Box b, Box c)
-      {
-          Box box = new Box();
-          box.length = b.length + c.length;
-          box.breadth = b.breadth + c.breadth;
-          box.height = b.height + c.height;
-          return box;
-      }
-      public static bool operator == (Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length == rhs.length && lhs.height == rhs.height 
-             && lhs.breadth == rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public static bool operator !=(Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length != rhs.length || lhs.height != rhs.height 
-              || lhs.breadth != rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public static bool operator <(Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length < rhs.length && lhs.height 
-              < rhs.height && lhs.breadth < rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public static bool operator >(Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length > rhs.length && lhs.height 
-              > rhs.height && lhs.breadth > rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public static bool operator <=(Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length <= rhs.length && lhs.height 
-              <= rhs.height && lhs.breadth <= rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public static bool operator >=(Box lhs, Box rhs)
-      {
-          bool status = false;
-          if (lhs.length >= rhs.length && lhs.height 
-             >= rhs.height && lhs.breadth >= rhs.breadth)
-          {
-              status = true;
-          }
-          return status;
-      }
-      public override string ToString()
-      {
-          return String.Format("({0}, {1}, {2})", length, breadth, height);
-      }
-   
-   }
-    
-   class Tester
-   {
-      static void Main(string[] args)
-      {
-        Box Box1 = new Box();          // 声明 Box1，类型为 Box
-        Box Box2 = new Box();          // 声明 Box2，类型为 Box
-        Box Box3 = new Box();          // 声明 Box3，类型为 Box
-        Box Box4 = new Box();
-        double volume = 0.0;   // 体积
-
-        // Box1 详述
-        Box1.setLength(6.0);
-        Box1.setBreadth(7.0);
-        Box1.setHeight(5.0);
-
-        // Box2 详述
-        Box2.setLength(12.0);
-        Box2.setBreadth(13.0);
-        Box2.setHeight(10.0);
-
-       // 使用重载的 ToString() 显示两个盒子
-        Console.WriteLine("Box1： {0}", Box1.ToString());
-        Console.WriteLine("Box2： {0}", Box2.ToString());
-        
-        // Box1 的体积
-        volume = Box1.getVolume();
-        Console.WriteLine("Box1 的体积： {0}", volume);
-
-        // Box2 的体积
-        volume = Box2.getVolume();
-        Console.WriteLine("Box2 的体积： {0}", volume);
-
-        // 把两个对象相加
-        Box3 = Box1 + Box2;
-        Console.WriteLine("Box3： {0}", Box3.ToString());
-        // Box3 的体积
-        volume = Box3.getVolume();
-        Console.WriteLine("Box3 的体积： {0}", volume);
-
-        //comparing the boxes
-        if (Box1 > Box2)
-          Console.WriteLine("Box1 大于 Box2");
-        else
-          Console.WriteLine("Box1 不大于 Box2");
-        if (Box1 < Box2)
-          Console.WriteLine("Box1 小于 Box2");
-        else
-          Console.WriteLine("Box1 不小于 Box2");
-        if (Box1 >= Box2)
-          Console.WriteLine("Box1 大于等于 Box2");
-        else
-          Console.WriteLine("Box1 不大于等于 Box2");
-        if (Box1 <= Box2)
-          Console.WriteLine("Box1 小于等于 Box2");
-        else
-          Console.WriteLine("Box1 不小于等于 Box2");
-        if (Box1 != Box2)
-          Console.WriteLine("Box1 不等于 Box2");
-        else
-          Console.WriteLine("Box1 等于 Box2");
-        Box4 = Box3;
-        if (Box3 == Box4)
-          Console.WriteLine("Box3 等于 Box4");
-        else
-          Console.WriteLine("Box3 不等于 Box4");
-
-        Console.ReadKey();
-      }
-    }
-}
-```
 
 ## C# 预处理器指令
 
@@ -873,7 +892,8 @@ public class MyClass
 ```
 
 **自定义特性**
-.Net 框架允许创建自定义特性，用于存储声明性的信息，且可在运行时被检索。该信息根据设计标准和应用程序需要，可与任何目标元素相关。
+
+`.Net` 框架允许创建自定义特性，用于存储声明性的信息，且可在运行时被检索。该信息根据设计标准和应用程序需要，可与任何目标元素相关。
 
 创建并使用自定义特性包含四个步骤：
 - 声明自定义特性
@@ -1200,13 +1220,16 @@ namespace DelegateAppl
       static void Main(string[] args)
       {
          // 创建委托实例
-         NumberChanger nc;
+         NumberChanger allMethodsDelegate;
          NumberChanger nc1 = new NumberChanger(AddNum);
          NumberChanger nc2 = new NumberChanger(MultNum);
-         nc = nc1;
-         nc += nc2;
-         // 调用多播
-         nc(5);
+         // 多播。 
+         // 若要向委托的方法列表（调用列表）添加其他方法，只需使用加法运算符或加法赋值运算符（“+”或“+=”）添加两个委托
+         // 同理 `-` 和 `-=`
+         allMethodsDelegate = nc1;
+         allMethodsDelegate += nc2;
+         // 原有的2个委托（nc1 nc2）保持不变。 调用 allMethodsDelegate 时，将按顺序调用所有2个方法。
+         allMethodsDelegate(5);
          Console.WriteLine("Value of Num: {0}", getNum());//75
          Console.ReadKey();
       }
@@ -1215,14 +1238,129 @@ namespace DelegateAppl
 ```
 
 
-#### C# 事件 Event
-**事件是一种封装，就好像属性会封装字段一样，可以把定义和实现隔离开来**
+**匿名函数**
 
-给你举个例子就是 `DateTime` 实际上你看那么多属性，其实里面只有一个字段存储时间，各种日期啊年啊属性都是根据这个时间算出来的。事件也把内部类型为一个委托的字段封装起来，这样在类的外部就只能使用事件来注册或者注销事件关注，而不能引发事件。
+匿名方法是在初始化委托时内联声明的方法。
+
+基本结构：
+`deleage( 参数 ) { 语句块 }`
+
+```c#
+delegate int MyDel (int x); //定义一个委托 
+
+MyDel del = delegate( int x){ return x; };
+```
+从上面我们可以看到，匿名方法是不会显示声明返回值的。
+
+**Lambda表达式**
+```c#
+MyDel del = delegate( int x) { return x; }; //匿名方法
+MyDel del2 = (int x) => {return x;}; //Lambda表达式
+MyDel del3 = x => {return x}; //简写的Lambda表达式
+```
 
 
+## C# 事件 Event
 
-### C# 泛型 Generic
+事件是一种特殊的多播委托，只能从声明它的类中进行调用。
+事件基于 EventHandler 委托和 EventArgs 基类。
+
+`public delegate void EventHandler(object? sender, EventArgs e);`
+
+`public class EventArgs`
+
+```c#
+using System;
+
+namespace DotNetEvents
+{
+    // Define a class to hold custom event info
+    public class CustomEventArgs : EventArgs
+    {
+        public CustomEventArgs(string message)
+        {
+            Message = message;
+        }
+
+        public string Message { get; set; }
+    }
+
+    // Class that publishes an event
+    class Publisher
+    {
+        // Declare the event using EventHandler<T>
+        public event EventHandler<CustomEventArgs> RaiseCustomEvent;
+
+        public void DoSomething()
+        {
+            // Write some code that does something useful here
+            // then raise the event. You can also raise an event
+            // before you execute a block of code.
+            OnRaiseCustomEvent(new CustomEventArgs("Event triggered"));
+        }
+
+        // Wrap event invocations inside a protected virtual method
+        // to allow derived classes to override the event invocation behavior
+        protected virtual void OnRaiseCustomEvent(CustomEventArgs e)
+        {
+            // Make a temporary copy of the event to avoid possibility of
+            // a race condition if the last subscriber unsubscribes
+            // immediately after the null check and before the event is raised.
+            EventHandler<CustomEventArgs> raiseEvent = RaiseCustomEvent;
+
+            // Event will be null if there are no subscribers
+            if (raiseEvent != null)
+            {
+                // Format the string to send inside the CustomEventArgs parameter
+                e.Message += $" at {DateTime.Now}";
+
+                // Call to raise the event.
+                raiseEvent(this, e);
+            }
+        }
+    }
+
+    //Class that subscribes to an event
+    class Subscriber
+    {
+        private readonly string _id;
+
+        public Subscriber(string id, Publisher pub)
+        {
+            _id = id;
+
+            // Subscribe to the event
+            pub.RaiseCustomEvent += HandleCustomEvent;
+        }
+
+        // Define what actions to take when the event is raised.
+        void HandleCustomEvent(object sender, CustomEventArgs e)
+        {
+            Console.WriteLine($"{_id} received this message: {e.Message}");
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            var pub = new Publisher();
+            var sub1 = new Subscriber("sub1", pub);
+            var sub2 = new Subscriber("sub2", pub);
+
+            // Call the method that raises the event.
+            pub.DoSomething();
+
+            // Keep the console window open
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadLine();
+        }
+    }
+}
+```
+
+
+## C# 泛型 Generic
 
 泛型 `Generic` 允许您延迟编写类或方法中的编程元素的数据类型的规范，直到实际在程序中使用它的时候。换句话说，泛型允许您编写一个可以与任何数据类型一起工作的类或方法。
 
@@ -1293,7 +1431,7 @@ namespace GenericApplication
 ```
 
 
-### C# 不安全代码
+## C# 不安全代码
 
 当一个代码块使用 `unsafe` 修饰符标记时，C# 允许在函数中使用指针变量。不安全代码或非托管代码是指使用了指针变量的代码块。
 如果您使用的是 Visual Studio IDE，那么您需要在项目属性中启用不安全代码。
@@ -1302,7 +1440,7 @@ namespace GenericApplication
 - 点击 Build 标签页。
 - 选择选项 Allow unsafe code 。
 
-#### C# 多线程 Thread
+## C# 多线程 Thread
 线程生命周期
 
 线程生命周期开始于 `System.Threading.Thread` 类的对象被创建时，结束于线程被终止或完成执行时。
