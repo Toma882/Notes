@@ -178,33 +178,8 @@ namespace CalculatorApplication
 
 
 ### C# 集合 Collection
-类				| 描述
----				| ---
-ArrayList		| 动态数组，会自动调整其大小，通过索引来访问
-Hashtable		| 使用 键 来访问元素
-SortedList		| 使用 键 和 索引 来访问元素
-Stack			| 后进先出 LIFO
-Queue			| 先进先出 FIFO
-BitArray		| 1 和 0 的二进制数组
 
-### Array
-
-声明一个数组不会在内存中初始化数组。当初始化数组变量时，您可以赋值给数组。
-
-数组是一个引用类型，所以您需要使用 new 关键字来创建数组的实例。
-
-```c#
-datatype[] arrayName;
-
-double[] balance = new double[10];
-int[] marks = {1, 2, 3, 4};
-```
-
-### enum
-
-枚举是一组命名整型常量，C# 枚举是值数据类型。换句话说，枚举包含自己的值，且不能继承或传递继承。
-枚举列表中的每个符号代表一个整数值，一个比它前面的符号大的整数值。默认情况下，第一个枚举符号的值是 0.例如：
-`enum Days { Sun, Mon, tue, Wed, thu, Fri, Sat };`
+[C# 集合](./C%23%20Collection.md)
 
 
 ## C# 定义方法
@@ -683,7 +658,7 @@ namespace InheritanceApplication
   * 抽象类 可以继承 抽象类，且只能 **单一** 继承
   * abstruct 抽象方法 只能在 抽象类 中声明，且 **没有方法体**
   * 抽象类的成员 可以**有访问级别**
-  * 子抽象类 继承 父抽象类，可以有**选择性**的 override 实现
+  * 子抽象类 继承 父抽象类，可以有**选择性的 override 实现**
   * 派生类必须实现 abstruct 抽象方法， virtual 虚方法可以不用实现
   
 * 虚方法 virtual
