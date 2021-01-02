@@ -81,6 +81,10 @@ CPU 和 GPU 通过使用一个命令缓冲区实现并行工作。命令缓冲�
 ### 透视投影 Perspective Projection
 远处的物体看上去比近处的物体更小一些，在模拟和3D动画中，这种投影能够获得最大程度的逼真感。
 
+### 网格 Mesh
+
+模型的网格，3D模型里构成三角形的点和边的集合就是Mesh。  
+由 顶点数据Vertices，三角形顶点索引数据triangles，法线向量normals，纹理坐标数组uv 组成。
 
 ## OpenGL ES基础概念
 

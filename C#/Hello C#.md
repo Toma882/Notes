@@ -1460,3 +1460,7 @@ Sleep()				| 把正在运行的线程挂起一段时间。
 线程优先级别:
 
 Lowest BelowNormal Normal AboveNormal Highest
+
+
+## 参考
+* [浅谈C#中堆和栈的区别（附上图解）](https://www.jb51.net/article/55306.htm)

@@ -26,3 +26,4 @@ ToLuaExport.cs memberFilter 里添加下面内容
 * [uLua](http://www.ulua.org/index.html)
 * [LuaFramework_UGUI_V2](https://github.com/jarjin/LuaFramework_UGUI_V2)
 * [LuaFramework_UGUI](https://github.com/jarjin/LuaFramework_UGUI)
+* [Unity3D热更新实战演练](https://zhuanlan.zhihu.com/p/43632619)

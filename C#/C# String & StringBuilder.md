@@ -17,7 +17,7 @@ sb.Append('def');　　//不会被销毁，而是直接追加到后面。
 
 ## String 与 StringBuilder的区别
 
-`String` 声明之后在内存中大小是不可修改的，而 `StringBuilder` 可以自由扩展大小(**String 分配在栈区，StringBuilder 分配在堆区**)
+`String` 声明之后在内存中大小是不可修改的，而 `StringBuilder` 可以自由扩展大小(**String 分配在栈区Stack，StringBuilder 分配在堆区Heap**)
 
 ```c#
 StringBuilder sb = new StringBuilder(5); //当指定分配大小之后，性能就会得到提升。在达到容量之前，它不会为其自己重新分配空间。如果超过指定大小系统会当前大小倍增，也就10,15,20。建议指定大小
@@ -70,3 +70,7 @@ StringBuilder sb = new StringBuilder("Hello World!");
 sb.Replace('!',   '?');  
 Console.WriteLine(sb); //结果：Hello World?
 ```
+
+## 参考
+* [[Unity优化]gc01：字符串常量池](https://www.cnblogs.com/lyh916/p/10848138.html)
+* [[Unity优化]gc02：StringBuilder](https://www.cnblogs.com/lyh916/p/10850742.html)
