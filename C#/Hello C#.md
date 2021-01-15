@@ -950,7 +950,7 @@ class Rectangle
 }
 ```
 
-### C# 反射 Reflection
+## C# 反射 Reflection
 
 反射 `Reflection` 对象用于在运行时获取类型信息。该类位于 `System.Reflection` 命名空间中，可访问一个正在运行的程序的元数据。
 
@@ -1118,7 +1118,7 @@ Last Reviewed: 19/10/2012
 Remarks: 
 ```
 
-### C# 属性 Property
+## C# 属性 Property
 
 ```c#
 // 声明类型为 string 的 Code 属性
@@ -1135,7 +1135,7 @@ public string Code
 }
 ```
 
-#### C# 索引器 Indexer
+### C# 索引器 Indexer
 
 ```c#
 element-type this[int index] 
@@ -1154,13 +1154,15 @@ element-type this[int index]
 }
 ```
 
-### C# 委托 Delegate
+## C# 委托 Delegate
 
 C# 中的委托 `Delegate` 类似于 C 或 C++ 中函数的指针。委托 `Delegate` 是存有**对某个方法**的引用的一种引用类型变量。引用可在运行时被改变。
 
 委托 `Delegate` 特别用于实现事件和回调方法。所有的委托`Delegate`都派生自 `System.Delegate` 类。
 
-**委托是可以把一个过程封装成变量进行传递并且执行的对象**
+**委托是可以把一个过程封装成变量进行传递并且执行的对象。**
+
+**委托就是一个持有一个或者多个方法的对象，并且该对象可以执行，可以传递。**
 
 声明委托`Delegate`
 
@@ -1234,6 +1236,53 @@ MyDel del2 = (int x) => {return x;}; //Lambda表达式
 MyDel del3 = x => {return x}; //简写的Lambda表达式
 ```
 
+## C# Action 委托
+
+`Action` 可以理解为系统内置（预定义）的一种委托类型，它的特点是没有返回值
+
+`Action<int>` 指的是带有1个int参数的委托，如 
+```
+void IntAction(int index)
+{
+   Console.WriteLine(index);
+}
+Action<int> a = IntAction;
+```
+
+```
+Action
+Action<in T1, in T2 ... in T16>
+```
+参数类型可以为0-16个
+
+## C# Func 委托
+
+`Func` 可以理解为系统内置（预定义）的一种委托类型，它的特点是有返回值
+
+`Func<int>` 指的是返回类型为int的委托，如 
+```
+int test1()
+{
+   return 1;
+}
+Func<int> a1 = test1;
+```
+
+`Func<string, int>` 指的是返回类型为int，参数类型为string的委托，如 
+```
+int test2(string str)
+{
+   Console.WriteLine(str);
+   return 2;
+}
+Func<string, int> a2 = test2;
+```
+
+```
+Func<out TResult>
+Func<in T1, in T2 ... in T16, out TResult>
+```
+ `Func`必须指定一个返回值类型，参数类型可以为0-16个，先写参数类型，最后一个是返回值。
 
 ## C# 事件 Event
 
