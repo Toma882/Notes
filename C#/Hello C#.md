@@ -788,6 +788,46 @@ StringReader	| 用于读取字符串缓冲区。
 StringWriter	| 用于写入字符串缓冲区。
 
 
+## C# Type 
+
+使用 `Type` 类来反射数据，也可以使用特性来个类型添加元数据。  
+`Type` 位于 `System.Reflection` 命名空间下。
+
+```
+CustomClass cc = new CustomClass();
+Type type = cc.getType();
+// Type type = typeof(CustomClass);
+// 通过 type 对象可以获取它对应的类的所有成员
+type.GetMethods;
+type.GetFields();
+type.GetProperties();
+```
+
+## C# Assembly 
+
+`Assembly` 位于 `System.Reflection` 命名空间下。
+
+Assembly中包含了可以在CLR(Common Language Runtime)中执行的代码。所有的.NET应用程序都是由一个或多个assembly组成的，不论你在创建一个Console, WinForms，WebForms应用程序或者一个类库时，实际上你都是在创建assembly。甚至.NET本身也是通过assembly来实现其功能。
+
+一个assembly可以由一个或者多个文件组成，简单来说，你可以把assembly理解成一个逻辑上的DLL。每个assembly必须有一个单独的执行入口如DllMain, WinMain, Main等。Assembly也有一套配置（Deploying）和版本控制（Versioning）的机制。
+
+
+```c#
+Assembly assem  = cc.GetType().Assembly;
+assem.FullName;// CustomClass, version=1.0.0.0, Culture=neutral, PublicKeyToken=null
+Type[] types = assem.GetTypes();
+```
+
+如何加载程序集
+
+```c#
+// 它会根据程序集的名字在本地目录和全局程序集缓存目录查找符合名字的程序集
+Assembly assembly1 = Assembly.Load("SomeAssembly");
+
+// 这里的参数是程序集的完整路径名，它不会在其他位置搜索。
+Assembly assembly2 = Assembly.LoadFrom(@"c:\xxx\xxx\SomeAssembly.dll")
+```
+
 ## C# 特性 Attribute
 
 特性（Attribute）是用于**在运行时传递程序**中各种元素（比如类、方法、结构、枚举、组件等）的行为信息的**声明性标签**。您可以通过**使用特性向程序添加声明性信息**。
@@ -824,22 +864,36 @@ AllowMultiple = true, Inherited = true)]
 
 **`Conditional`**
 
-这个预定义特性标记了一个条件方法，其执行依赖于它顶的预处理标识符。
+这个预定义特性**标记了一个条件方法**，其执行依赖于它顶的预处理标识符。
 它会引起方法调用的条件编译，取决于指定的值，比如 Debug 或 Trace。例如，当调试代码时显示变量的值。
 规定该特性的语法如下：
 ```
 [Conditional(conditionalSymbol)]
+
+
+#define DoTrace
+
+[Conditional("DoTrace")]
+static void TraceMessage(string str)
+{
+   Console.WriteLine(str);
+}
+static void Main()
+{
+   TraceMessage("Start of Main");
+   Console.WriteLine("Doing Work in Main");
+   TraceMessage("End Of Main");
+}
 ```
 
 **`Obsolete`**
 
-这个预定义特性标记了不应被使用的程序实体。它可以让您通知编译器丢弃某个特定的目标元素。例如，当一个新方法被用在一个类中，但是您仍然想要保持类中的旧方法，您可以通过显示一个应该使用新方法，而不是旧方法的消息，来把它标记为 `obsolete`（过时的）。
+这个预定义特性**标记了不应被使用的程序实体**。它可以让您通知编译器丢弃某个特定的目标元素。例如，当一个新方法被用在一个类中，但是您仍然想要保持类中的旧方法，您可以通过显示一个应该使用新方法，而不是旧方法的消息，来把它标记为 `obsolete`（过时的）。
 规定该特性的语法如下：
 ```
-[Obsolete(
-   message,
-   iserror
-)]
+[Obsolete(message, iserror)]
+[Obsolete("建议您使用新的方法", false)] // 警告
+[Obsolete("这个方法是错误的", true)] // 错误
 ```
 其中：
 参数 `message`，是一个字符串，描述项目为什么过时的原因以及该替代使用什么。
@@ -866,9 +920,25 @@ public class MyClass
 }
 ```
 
+**调用者特性**
+
+`CallerFilePath, CallerLineNumber, CallerMemberName`
+
+```c#
+public static void PrintOut(string message, 
+[CallerFilePath] string fileName="", 
+[CallerLineNumber] string lineNumber="", 
+[CallerMemberName] string memberName="", 
+)
+```
+
+**DebuggerStepThrough**
+
+```DebuggerStepThrough```
+
 **自定义特性**
 
-`.Net` 框架允许创建自定义特性，用于存储声明性的信息，且可在运行时被检索。该信息根据设计标准和应用程序需要，可与任何目标元素相关。
+`.Net` 框架允许创建自定义特性，用于存储声明性的信息，且可在运行时被检索。该信息根据设计标准和应用程序需要，可与任何目标元素相关。继承自 `System.Attribute` ，一般情况下声明 `sealed class MyTestAttribute{}`
 
 创建并使用自定义特性包含四个步骤：
 - 声明自定义特性
@@ -888,6 +958,7 @@ bug 的代码编号
 
 ```c#
 // 一个自定义特性 BugFix 被赋给类及其成员
+// AttributeUsage 表示这个特性可以使用在相应的位置
 [AttributeUsage(AttributeTargets.Class |
 AttributeTargets.Constructor |
 AttributeTargets.Field |
@@ -950,6 +1021,7 @@ class Rectangle
 }
 ```
 
+
 ## C# 反射 Reflection
 
 反射 `Reflection` 对象用于在运行时获取类型信息。该类位于 `System.Reflection` 命名空间中，可访问一个正在运行的程序的元数据。
@@ -964,133 +1036,129 @@ class Rectangle
 ```c#
 using System;
 using System.Reflection;
-namespace BugFixApplication
+
+namespace ReflectionExample
 {
-   // 一个自定义属性 BugFix 被赋给类及其成员
-   [AttributeUsage(AttributeTargets.Class |
-   AttributeTargets.Constructor |
-   AttributeTargets.Field |
-   AttributeTargets.Method |
-   AttributeTargets.Property,
-   AllowMultiple = true)]
+    // 一个自定义属性 BugFix 被赋给类及其成员
+    [AttributeUsage(AttributeTargets.Class |
+                    AttributeTargets.Constructor |
+                    AttributeTargets.Field |
+                    AttributeTargets.Method |
+                    AttributeTargets.Property,
+        AllowMultiple = true)]
+    public class DeBugInfo : System.Attribute
+    {
+        private int bugNo;
+        private string developer;
+        private string lastReview;
+        public string message;
 
-   public class DeBugInfo : System.Attribute
-   {
-      private int bugNo;
-      private string developer;
-      private string lastReview;
-      public string message;
+        public DeBugInfo(int bg, string dev, string d)
+        {
+            this.bugNo = bg;
+            this.developer = dev;
+            this.lastReview = d;
+        }
 
-      public DeBugInfo(int bg, string dev, string d)
-      {
-         this.bugNo = bg;
-         this.developer = dev;
-         this.lastReview = d;
-      }
+        public int BugNo
+        {
+            get { return bugNo; }
+        }
 
-      public int BugNo
-      {
-         get
-         {
-            return bugNo;
-         }
-      }
-      public string Developer
-      {
-         get
-         {
-            return developer;
-         }
-      }
-      public string LastReview
-      {
-         get
-         {
-            return lastReview;
-         }
-      }
-      public string Message
-      {
-         get
-         {
-            return message;
-         }
-         set
-         {
-            message = value;
-         }
-      }
-   }
-   [DeBugInfo(45, "Zara Ali", "12/8/2012",
-	Message = "Return type mismatch")]
-   [DeBugInfo(49, "Nuha Ali", "10/10/2012",
-	Message = "Unused variable")]
-   class Rectangle
-   {
-      // 成员变量
-      protected double length;
-      protected double width;
-      public Rectangle(double l, double w)
-      {
-         length = l;
-         width = w;
-      }
-      [DeBugInfo(55, "Zara Ali", "19/10/2012",
-	   Message = "Return type mismatch")]
-      public double GetArea()
-      {
-         return length * width;
-      }
-      [DeBugInfo(56, "Zara Ali", "19/10/2012")]
-      public void Display()
-      {
-         Console.WriteLine("Length: {0}", length);
-         Console.WriteLine("Width: {0}", width);
-         Console.WriteLine("Area: {0}", GetArea());
-      }
-   }//end class Rectangle  
-   
-   class ExecuteRectangle
-   {
-      static void Main(string[] args)
-      {
-         Rectangle r = new Rectangle(4.5, 7.5);
-         r.Display();
-         Type type = typeof(Rectangle);
-         // 遍历 Rectangle 类的属性
-         foreach (Object attributes in type.GetCustomAttributes(false))
-         {
-            DeBugInfo dbi = (DeBugInfo)attributes;
-            if (null != dbi)
+        public string Developer
+        {
+            get { return developer; }
+        }
+
+        public string LastReview
+        {
+            get { return lastReview; }
+        }
+
+        public string Message
+        {
+            get { return message; }
+            set { message = value; }
+        }
+    }
+
+    [DeBugInfo(45, "Zara Ali", "12/8/2012",
+        Message = "Return type mismatch")]
+    [DeBugInfo(49, "Nuha Ali", "10/10/2012",
+        Message = "Unused variable")]
+    class Rectangle
+    {
+        // 成员变量
+        protected double length;
+        protected double width;
+
+        public Rectangle(double l, double w)
+        {
+            length = l;
+            width = w;
+        }
+
+        [DeBugInfo(55, "Zara Ali", "19/10/2012",
+            Message = "Return type mismatch")]
+        public double GetArea()
+        {
+            return length * width;
+        }
+
+        [DeBugInfo(56, "Zara Ali", "19/10/2012")]
+        public void Display()
+        {
+            Console.WriteLine("Length: {0}", length);
+            Console.WriteLine("Width: {0}", width);
+            Console.WriteLine("Area: {0}", GetArea());
+        }
+    } //end class Rectangle  
+
+    class ExecuteRectangle
+    {
+        static void Main(string[] args)
+        {
+            Rectangle r = new Rectangle(4.5, 7.5);
+            r.Display();
+
+            Type type = typeof(Rectangle);
+            
+            // 遍历 Rectangle 类的属性
+            foreach (Object attributes in type.GetCustomAttributes(false))
             {
-               Console.WriteLine("Bug no: {0}", dbi.BugNo);
-               Console.WriteLine("Developer: {0}", dbi.Developer);
-               Console.WriteLine("Last Reviewed: {0}",
-					dbi.LastReview);
-               Console.WriteLine("Remarks: {0}", dbi.Message);
+                DeBugInfo dbi = (DeBugInfo) attributes;
+                if (null != dbi)
+                {
+                    Console.WriteLine("Bug no: {0}", dbi.BugNo);
+                    Console.WriteLine("Developer: {0}", dbi.Developer);
+                    Console.WriteLine("Last Reviewed: {0}",
+                        dbi.LastReview);
+                    Console.WriteLine("Remarks: {0}", dbi.Message);
+                }
             }
-         }
-         
-         // 遍历方法属性
-         foreach (MethodInfo m in type.GetMethods())
-         {
-            foreach (Attribute a in m.GetCustomAttributes(true))
+
+
+            // 遍历方法属性
+            foreach (MethodInfo m in type.GetMethods())
             {
-               DeBugInfo dbi = (DeBugInfo)a;
-               if (null != dbi)
-               {
-                  Console.WriteLine("Bug no: {0}, for Method: {1}",
-						dbi.BugNo, m.Name);
-                  Console.WriteLine("Developer: {0}", dbi.Developer);
-                  Console.WriteLine("Last Reviewed: {0}",
-						dbi.LastReview);
-                  Console.WriteLine("Remarks: {0}", dbi.Message);
-               }
+                foreach (Attribute a in m.GetCustomAttributes(true))
+                {
+                    DeBugInfo dbi = a as DeBugInfo;
+                    if (null != dbi)
+                    {
+                        Console.WriteLine("Bug no: {0}, for Method: {1}",
+                            dbi.BugNo, m.Name);
+                        Console.WriteLine("Developer: {0}", dbi.Developer);
+                        Console.WriteLine("Last Reviewed: {0}",
+                            dbi.LastReview);
+                        Console.WriteLine("Remarks: {0}", dbi.Message);
+                    }
+                }
             }
-         }
-         Console.ReadLine();
-      }
-   }
+
+            Console.ReadLine();
+        }
+    }
 }
 ```
 
@@ -1214,6 +1282,14 @@ namespace DelegateAppl
 }
 ```
 
+```
+// 获得多播委托列表，并且调用
+Delegate[] delegates = a.GetInvocationList();
+for(Delegate de in delegates)
+{
+    de.DynamicInvoke();
+}
+```
 
 **匿名函数**
 
@@ -1226,6 +1302,12 @@ namespace DelegateAppl
 delegate int MyDel (int x); //定义一个委托 
 
 MyDel del = delegate( int x){ return x; };
+
+// 匿名方法
+Func<int, int, int> plus = delegate(int arg1, int arg2)
+{
+    return arg1+arg2;
+}
 ```
 从上面我们可以看到，匿名方法是不会显示声明返回值的。
 
@@ -1234,6 +1316,11 @@ MyDel del = delegate( int x){ return x; };
 MyDel del = delegate( int x) { return x; }; //匿名方法
 MyDel del2 = (int x) => {return x;}; //Lambda表达式
 MyDel del3 = x => {return x}; //简写的Lambda表达式
+
+// Lambada表达式
+Func<int, int, int> plus = (int arg1, int arg2)=>{
+    return arg1+arg2;
+}
 ```
 
 ## C# Action 委托
@@ -1285,6 +1372,18 @@ Func<in T1, in T2 ... in T16, out TResult>
  `Func`必须指定一个返回值类型，参数类型可以为0-16个，先写参数类型，最后一个是返回值。
 
 ## C# 事件 Event
+
+event 只能在类里面进行声明，使用跟委托没什么区别。  
+事件(Event)基于委托，为委托提供了一个发布/订阅机制，我们可以说时间是一种具有特殊签名的委托。
+事件不能在类的外部触发，只能在类的内部触发。
+
+```
+// Event
+public delegate void MyDeleate();
+// public MyDeleate myDelegate;
+// 在原有的委托类型前面加 event ，那么这个 委托 就变成了 事件
+public event MyDeleate myDelegate;
+```
 
 事件是一种特殊的多播委托，只能从声明它的类中进行调用。
 事件基于 EventHandler 委托和 EventArgs 基类。
@@ -1464,12 +1563,115 @@ namespace GenericApplication
 - 点击 Build 标签页。
 - 选择选项 Allow unsafe code 。
 
+
+## C# 多线程 委托
+
+**`while` 方式**
+```c#
+class Program
+{
+   static int Test(int i, string str)
+   {
+      Console.Write("test"+i+str);
+      Thread.Sleep(100);// 让当前线程暂停100ms
+      return 100;
+   }
+
+   static void Main(string[] args)
+   {
+      // 通过委托开启线程
+      Func<int, string, int> func = Test;
+      // 通过 IAsyncResult 获得 返回值
+      IAsyncResult ar = func.BeginInvoke(100, "test", null, null);
+      Console.WriteLine("main");
+      while(ar.isCompleted == false)
+      {
+         Console.Write(".");
+      }
+      // 取得异步线程的返回值
+      int res = func.EndInvoker(ar);
+      Console.WriteLine(res);
+      Console.ReadKey();
+   }
+}
+```
+
+**`AsyncWaitHandle` 方式**
+```c#
+class Program
+{
+   static int Test(int i, string str)
+   {
+      Console.Write("test"+i+str);
+      Thread.Sleep(100);// 让当前线程暂停100ms
+      return 100;
+   }
+
+   static void Main(string[] args)
+   {
+      // 通过委托开启线程
+      Func<int, string, int> func = Test;
+      // 通过 IAsyncResult 获得 返回值
+      IAsyncResult ar = func.BeginInvoke(100, "test", null, null);
+      Console.WriteLine("main");
+      
+      // 等待线程结束再执行下面的方法，有1000ms的超时时间
+      bool isEnd = ar.AsyncWaitHandle.WaitOne(1000);
+      if(isEnd)
+      {
+         int res = func.EndInvoker(ar)
+          Console.WriteLine(res);
+      }
+      Console.ReadKey();
+   }
+}
+```
+
+**通过 `callback` 检测线程结束**
+```c#
+class Program
+{
+   static int Test(int i, string str)
+   {
+      Console.Write("test"+i+str);
+      Thread.Sleep(100);// 让当前线程暂停100ms
+      return 100;
+   }
+
+   static void Main(string[] args)
+   {
+      // 通过委托开启线程
+      Func<int, string, int> func = Test;
+      
+      // 倒数第二个参数是一个委托类型的参数，表示回调函数
+      // 倒数第一个参数给 回调函数 传递 数据
+      IAsyncResult ar = func.BeginInvoke(100, "test", OnCallback, a);
+      
+      
+      Console.ReadKey();
+   }
+
+   static void OnCallback(IAsyncResult ar)
+   {
+      // 传递过来的参数通过 ar.AsyncState 获得
+      Func<int, string, int> func = ar.AsyncState as Func<int, string, int>;
+
+      // 通过 IAsyncResult 获得 返回值
+      int res = func.EndInvoker(ar)
+      Console.WriteLine(res);
+   }
+}
+```
+
+
+
+
 ## C# 多线程 Thread
-线程生命周期
+
 
 线程生命周期开始于 `System.Threading.Thread` 类的对象被创建时，结束于线程被终止或完成执行时。
 
-下面列出了线程生命周期中的各种状态：
+下面列出了**线程生命周期中**的各种状态：
 - 未启动状态：当线程实例被创建但 Start 方法未被调用时的状况。
 - 就绪状态：当线程准备好运行并等待 CPU 周期时的状况。
 - 不可运行状态：下面的几种情况下线程是不可运行的：
@@ -1481,8 +1683,7 @@ namespace GenericApplication
 一个进程包含多个线程，进程会包含一个进入此入口的线程，我们称之为主线程Main。
 对于单个CPU而言，在一个单位时间内，只能执行一个线程。当一个线程的时间片用完时，系统会将该线程挂起，下一个时间内再执行另一个线程。多线程其实是一个假象，它在单位时间内进行多个线程的切换，切换频密而且单位时间非常短暂，所以多线程可被视为同时运行。
 
-前台线程与后台线程：
-前台线程能阻止应用程序的终止，既直到所有前台线程终止后才会彻底关闭应用程序。而对后台线程而言，当所有前台线程终止时，后台线程会被自动终止，不论后台线程是否正在执行任务。默认情况下通过Thread.Start()方法创建的线程都自动为前台线程，把线程的属性IsBackground设为true时就将线程转为后台线程。
+
 
 I/O 类				| 描述
 ---					| ---
@@ -1508,7 +1709,451 @@ Sleep()				| 把正在运行的线程挂起一段时间。
 
 线程优先级别:
 
-Lowest BelowNormal Normal AboveNormal Highest
+`Lowest BelowNormal Normal AboveNormal Highest`
+
+
+代码示例1
+```c#
+class Program
+{
+   // 必须 object 类型
+   static void DownloadFile(object obj)
+   {
+      Console.WriteLine("当前线程ID:" + Thread.CurrentThread.ManagedThreadId + obj);
+      Thread.Sleep(2000);
+      Console.WriteLine("下载完成");
+   }
+
+   static void Main(string[] args)
+   {
+      Thread t = new Thread(DownloadFile);
+      // 传参
+      t.Start("file.txt");
+      Console.WriteLine("Main");
+      Console.ReadKey();
+   }
+}
+```
+
+代码示例2
+```c#
+class Program
+{
+   static void Main(string[] args)
+   {
+      // 新建对象传参
+      MyThread t = new MyThread("file.txt", "http://www.abc.com/");
+      Thread t = new Thread(t.DownLoadFile);
+      // 传参
+      t.Start();
+      Console.WriteLine("Main");
+      Console.ReadKey();
+   }
+}
+
+class MyThread
+{
+   private string fileName;
+   private string fileURL;
+   public MyThread(string fileName, string fileURL)
+   {
+      this.fileName = fileName;
+      this.fileURL = fileURL;
+   }
+
+   public void DownLoadFile()
+   {
+      Console.WriteLine("开始下载" + fileURL + fileName);
+      Thread.Sleep(2000);
+      Console.WriteLine("下载完成");
+   }
+}
+```
+
+**前台线程与后台线程**
+
+前台线程能阻止应用程序的终止，既直到所有前台线程终止后才会彻底关闭应用程序。而对后台线程而言，当所有前台线程终止时，后台线程会被自动终止，不论后台线程是否正在执行任务。默认情况下通过`Thread.Start()`方法创建的线程都自动为前台线程，把线程的属性`thread.IsBackground = true`时就将线程转为后台线程。
+
+
+**线程池**
+
+`TreadPool` 系统自带的线程池。
+
+线程池的最小线程数和最大线程数是可以配置的，双核CPU，默认设置成 1023 个工作线程和 1000 个I/O线程。
+
+* 线程池中的所有线程都是后台线程，不能修改为前台线程。
+* 不能给入池的线程设置优先级和名称。
+* 入池的线程只能用于时间较短的任务，如果线程要一直运行，就应该使用Thread单独创建一个线程。
+
+```c#
+class Program
+{
+   // 必须 object 类型
+   static void DownloadFile(object obj)
+   {
+      Console.WriteLine("当前线程ID:" + Thread.CurrentThread.ManagedThreadId + obj);
+      Thread.Sleep(2000);
+      Console.WriteLine("下载完成");
+   }
+
+   static void Main(string[] args)
+   {
+      ThreadPool.QueueUserWorkItem(DownloadFile);
+      ThreadPool.QueueUserWorkItem(DownloadFile);
+      ThreadPool.QueueUserWorkItem(DownloadFile);
+      ThreadPool.QueueUserWorkItem(DownloadFile);
+      ThreadPool.QueueUserWorkItem(DownloadFile);
+
+      Console.ReadKey();
+   }
+}
+```
+
+
+**线程任务 Task**
+
+任务拥有父子关系，子任务结束，父任务才结束
+```
+WaitForChildrenToComplete
+RunToCompletion
+```
+
+```c#
+class Program
+{
+   // 必须 object 类型
+   static void DownloadFile(object obj)
+   {
+      Console.WriteLine("任务开始");
+      Thread.Sleep(2000);
+      Console.WriteLine("任务结束");
+   }
+
+   static void Main(string[] args)
+   {
+      // 方法一
+      Task t1 = new Task(DownloadFile);
+      t1.Start();
+
+      // 方法二
+      TaskFactory tf = new TaskFactory();
+      Task t2 = tf.StartNew(DownloadFile);
+
+
+      Console.WriteLine("Main");
+      Console.ReadKey();
+   }
+}
+```
+
+连续任务
+
+```c#
+class Program
+{
+   // 必须 object 类型
+   static void DownloadFile(object obj)
+   {
+      Console.WriteLine("任务开始");
+      Thread.Sleep(2000);
+      Console.WriteLine("任务结束");
+   }
+
+   // 必须 object 类型
+   static void ReadFile(object obj)
+   {
+      Console.WriteLine("任务开始");
+      Thread.Sleep(2000);
+      Console.WriteLine("任务结束");
+   }
+
+   static void Main(string[] args)
+   {
+      // t1 ==> t2 ==> t3 ==>
+      //   |
+      //   ==> t4 ===========>
+      Task t1 = new Task(DownloadFile);
+      t1.Start();
+      Task t2 = t1.ContinueWith(ReadFile);
+      Task t3 = t1.ContinueWith(ReadFile);
+      Task t4 = t2.ContinueWith(ReadFile);
+
+
+
+      Console.WriteLine("Main");
+      Console.ReadKey();
+   }
+}
+```
+
+**锁 lock**
+
+```c#
+class MyTreadObject
+{
+   private int state = 5;
+
+   public void ChangeState()
+   {
+      state++;
+      if(state == 5)
+      {
+         Console.WriteLine("5");
+      }
+      state = 5;
+   }
+}
+class Program
+{
+   static void ChangeState(object o)
+   {
+      MyTreadObject m = o as MyTreadObject;
+      while(true)
+      {
+         // 向系统申请可不可以 锁定 m 对象，如果 m 没有被锁定，那么可以进行；如果 m 被锁定，那么该语句暂停，直到申请到 m 对象状态为没有被锁定。
+         lock(m)
+         {
+            m.ChangeState();
+         }
+      }
+   }
+   static void Main(string[] args)
+   {
+      MyTreadObject m = new MyTreadObject();
+      Thread t = new Thread(ChangeState);
+      t.Start();
+
+      new Thread(ChangeState).Start();
+   }
+}
+```
+
+
+## Socket
+
+**TCP服务端**
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      Socket tcpServer = new Socket(AddressFamily.InterNetwork,
+                                    SocketType.Stream, ProtocolType.Tcp);
+      
+      IPAddress ipAddress = new IPAddress(new byte[]{192,168,1,16});
+      EndPoint point = new IPEndPoint(ipAddress, 18668);
+      tcpServer.Bind(point);
+
+      // 开始监听，参数为最大连接数
+      tcpServer.listen(10000);
+      // 暂停当前线程，直到有一个客户端连接过来，之后进行下面的代码。
+      // 使用 clientSocket 与客户端进行通信
+      Socket clientSocket = tcpServer.Accept();
+      string message = "Hello, Welcome!";
+      bytes[] data = Encoding.UTF8.GetBytes(message);
+      clientSocket.send(data);
+
+      byte[] data2 = new byte[1024];
+      int length = tcpClient.Receive(data2);
+      string message = Encoding.UTF8.GetString(data2, 0, length);
+      Console.WriteLine(message);
+
+      Console.ReadKey();
+   }
+}
+```
+
+**TCP客户端**
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      Socket tcpClient = new Socket(AddressFamily.InterNetwork,
+                                    SocketType.Stream, ProtocolType.Tcp);
+
+      IPAddress ipAddress = IPAddress.Parse("192.168.1.16");
+      EndPoint point = new IPEndPoint(ipAddress, 18668);
+      tcpClient.Connect(point);
+
+      byte[] data = new byte[1024];
+      // 接受到bytes的长度
+      int length = tcpClient.Receive(data);
+      string message = Encoding.UTF8.GetString(data, 0, length);
+      Console.WriteLine(message);
+
+      // 向服务器端发送消息
+      string message2 = "Thank you!";
+      bytes[] data2 = Encoding.UTF8.GetBytes(message2);
+      tcpClient.send(data2);
+
+      Console.ReadKey();
+   }
+}
+```
+
+**UDP服务端**
+
+不需要建立连接，直接发送
+
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      Socket udpServer = new Socket(AddressFamily.InterNetwork,
+                                    SocketType.Dgram, ProtocolType.Udp);
+      
+      IPAddress ipAddress = new IPAddress(new byte[]{192,168,1,16});
+      EndPoint point = new IPEndPoint(ipAddress, 18668);
+      udpServer.Bind(point);
+
+      
+      IPEndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+      byte[] data = new byte[1024];
+      int length = udpServer.ReceiveFrom(data, ref remoteEndPoint);
+      string message = Encoding.UTF8.GetString(data, 0, length);
+      Console.WriteLine("请求IP地址为：" + remoteEndPoint.Address.ToString() + ":" 
+                        + remoteEndPoint.Port);
+      Console.WriteLine("收到的数据为：" + message);
+      Console.ReadKey();
+   }
+}
+```
+
+**UDP客户端**
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      Socket udpClient = new Socket(AddressFamily.InterNetwork,
+                                    SocketType.Dgram, ProtocolType.Udp);
+      
+      string message = Console.ReadLine();
+      byte[] data = Encoding.UTF8.GetBytes(message);
+      
+      IPAddress ipAddress = new IPAddress(new byte[]{192,168,1,16});
+      IPEndPoint point = new IPEndPoint(ipAddress, 18668);
+      
+      udpClient.Send(data, point);
+   }
+}
+```
+
+**TcpListener**
+
+`TcpListener` 对 Socket 进行了一层封装，这个类会自己创建 Socket 对象
+
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      TcpListener listener = new TcpListener(IPAddress.Parse("192.168.1.16"), 18668);
+      // 开始进行监听
+      listener.start();
+      // 等待客户端连接
+      TcpClient client = listener.AcceptTcpClient();
+      // 取得客户端发过来的数据
+      NetworkStream stream = client.GetStream();
+      byte[] data = new byte[1024];
+
+      while(true)
+      {
+         // byte[], offset, count(MAX)
+         // length 实际的大小
+         int length = stream.Read(data, 0, 1024);
+         string message = Encoding.UTF8.GetString(data, 0, length);
+         Console.WriteLine("收到的消息：" + message);
+      }
+
+      stream.Close();
+      client.Close();
+      listener.Stop();
+   }
+}
+```
+
+
+**TcpClient**
+
+`TcpClient` 对 Socket 进行了一层封装，这个类会自己创建 Socket 对象
+
+```c#
+
+class Program
+{
+   static void Main(string[] args)
+   {
+      TcpClient client = new TcpListener("192.168.1.16", 18668);
+      // 通过 NetworkStream 进行传输数据
+      NetworkStream stream = client.GetStream();
+
+      while(true)
+      {
+         string message = Console.ReadLine();
+         byte[] data = Encoding.UTF8.GetBytes(message);
+         stream.Write(data);
+      }
+
+      stream.Close();
+      client.Close();
+      Console.ReadKey();
+   }
+}
+```
+
+
+**UdpClient**
+
+`UdpClient` 对 Socket 进行了一层封装，这个类会自己创建 Socket 对象
+
+```c#
+class Program
+{
+   static void Main(string[] args)
+   {
+      UdpClient client = new UdpClient("192.168.1.16", 18668);
+
+      while(true)
+      {
+         IPEndPoint point = new IPEndPoint(IPAddress.Any, 0);
+         byte[] data = client.Receive(ref point);
+         string message = Encoding.UTF8.GetString(data);
+         Console.WriteLine("收到的消息：" + message);
+      }
+
+      client.Close();
+      Console.ReadKey();
+   }
+}
+```
+
+```c#
+class Program
+{
+   static void Main(string[] args)
+   {
+      UdpClient client = new UdpClient();
+
+      while(true)
+      {
+         string message = Console.ReadLine();
+         byte[] data = Encoding.UTF8.GetBytes(message);
+         client.Send(data, data.Length, new IPEndPoint(IPAddress.Parse("192.168.1.16"), 18668));
+      }
+
+      client.Close();
+      Console.ReadKey();
+   }
+}
+```
 
 
 ## 参考
