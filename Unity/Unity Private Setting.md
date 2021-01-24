@@ -10,8 +10,11 @@ Edit -> Preferences -> Colors -> Playmode tint
 ### Snapping to the Grid
 Edit -> Grid and Snap
 
-### Editor
-
+### VSync
+```
+Edit->Project Settings->Quality
+VSync Count =>   Don’t Sync
+```
 
 
 ## Unity Private Tips
