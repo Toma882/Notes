@@ -5,6 +5,11 @@
 brew install lua
 ```
 
+### Windows
+[luaforwindows](https://github.com/rjpcomputing/luaforwindows/)
+
+
+
 ### 源码安装
 * 先在 [Lua.org](http://www.lua.org/ftp/ )  下载最新的Lua版本
 * 解压缩
