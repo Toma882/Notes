@@ -10,13 +10,16 @@ https://zhuanlan.zhihu.com/p/139252379
 `RectTransforms` 用于 GUI，不过也可以用于其他情况。 它用于存储和操作矩形的位置、大小和锚定，并支持各种形式的缩放（基于父 `RectTransform` ）。
 
 ## `Anchors`
-取值范围`[0-1]`，
 
-`Anchors` 有4片小三角组成，合并在一起的时候像极了花瓣。
+`Anchors` 取值范围`[0-1]`，有4片小三角组成，合并在一起的时候像极了花瓣。
 
-`Anchors` 默认合并在一起，值为 `Min(0.5, 0.5) Max(0.5, 0.5)`，显示的是`PoxX PoxY PoxZ`
+`Anchors` 根据位置特点分为 **锚点合并** 和 **锚点分开** 两种情况，下面的内容也根据此进行描述。
 
-`Anchors` 若分开，可以把它看成一个矩形，左下角为 Min 的值，右上角为 Max 的值，有可能显示的是 `Left Rigth Top Bottom`
+**锚点合并**  
+`Anchors` 默认合并，值为 `Min(0.5, 0.5) Max(0.5, 0.5)`，显示的是`PoxX PoxY PoxZ`
+
+**锚点分开**  
+`Anchors` 分开时，可以把4片三角形的位置看成一个矩形的四个顶点，左下角坐标为 `Min 的 (X, Y)` 值，右上角为` Max 的 (X, Y)` 值，那么左上角可以理解为 `(Min_X, Max_Y)`，右下角可以理解为 `(Max_X, Min_Y)`，根据实际情况，对应的 `PoxX PoxY PoxZ` 有可能由 `Left Rigth Top Bottom` 来代替表示
 
 
 关于父节点  
