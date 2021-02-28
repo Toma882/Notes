@@ -7,6 +7,12 @@
 
 Rider -> Setting -> Editor -> File Types -> Lua Language
 
+添加
+```
+*.lua.txt
+*.lua.bytes
+```
+
 ### xLua 调试
 
 使用xlua，需要在 `luaEnv.DoString()` 时 `chunkName` 参数传入 `lua` 脚本的全路径，调试器才能正确定位到断点。
