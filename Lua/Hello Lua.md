@@ -390,7 +390,7 @@ end
 
 ## Lua 模块与包
 
-[Lua Module](./Lua20%Module.lua)
+[Lua Module](./Lua%20Module.md)
 
 
 ## C 包

@@ -1,4 +1,4 @@
-##Lua Install
+## Lua Install
 
 ### homebrew
 ```sh
