@@ -63,8 +63,10 @@ Rect(x, y, width, height)
 此 `RectTransform` 相对于锚点之间距离的大小。  
 几何定义可以理解为 `RectTransform` 的区域 与 `Anchors` 区域的差值。差值有可能为负数。
 
-`sizeDelta = offsetMax - offsetMin`
-
+```
+sizeDelta.x = offsetMax.x - offsetMin.x
+sizeDelta.y = offsetMax.y - offsetMin.y
+```
 
 ## `GetLocalCorners (Vector3[] fourCornersArray)`
 
