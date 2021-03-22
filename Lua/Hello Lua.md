@@ -8,7 +8,7 @@ Lua脚本是一个很轻量级的脚本，也是号称性能最高的脚本，�
 ### 注意事项
 * Lua 索引值是以 1 为起始
 * repeat end
-* do end 可以理解为 {}
+* 在 调试 时候的 return 语句，应该写成 `do return end`
 * ^ 用于幂次方 2^3结果是8
 * string 类型连接，用`a=' hello' b=' world' c=a..b -- c contains 'hello world'`
 * 计算长度用`#`，`stringLength=#'hello world'
@@ -605,7 +605,7 @@ main	false	cannot resume dead coroutine
 ---分割线---
 ```
 
-**了解resume yield的返回值概念**
+**了解 resume yield 的返回值概念**
 
 ```lua
 co = coroutine.create(function (a, b)
