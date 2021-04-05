@@ -76,7 +76,7 @@ Trigger 触发器 的特点是**允许其他碰撞体穿过，不会 产生 碰�
 当两个 GameObjects 发生碰撞时， `OnTriggerEnter` 会在 `FixedUpdate` 函数后发生。 涉及的 碰撞体(Colliders) 并不总是处于初始接触点。因此并不完全准确。
 > OnTriggerEnter happens on the FixedUpdate function when two GameObjects collide. The Colliders involved are not always at the point of initial contact.
 
-## Collision & Trigger
+## Collision & Trigger 小结
 #### 事件函数的执行顺序  
 `FixedUpdate -> OnTriggerXXX -> OnCollisionXXX`
 
@@ -92,8 +92,8 @@ Trigger 触发器 的特点是**允许其他碰撞体穿过，不会 产生 碰�
 
 #### 发送 `OnTriggerXXX` 的条件
 
-* 一个 GameObject 的 刚体(Rigidbody) 组件无论是否 Kinematic，若其 碰撞体(Collider)组件 开启 触发(Trigger)，与任一个 碰撞体(Collider) 无论是否 触发(Trigger)，都会发送 `OnTriggerXXX` 事件
-* todo 其他情况待总结。
+* 一个拥有 刚体(Rigidbody) 和 碰撞体(Collider) 的 GameObject， 若其 碰撞体(Collider)组件 开启 触发(Trigger)， 刚体(Rigidbody) 组件无论是否 Kinematic，都会发送 `OnTriggerXXX` 事件
+* 一个 静态触发碰撞体(Static Trigger Collider)，也就是 **没有 刚体(Rigidbody)** 的对象，并且 开启 触发(Trigger) 的 碰撞体(Colliders)， 那么它只对 拥有 刚体(RigidBody)，无论其是否会 Kinematic or Trigger，都会发送 `OnTriggerXXX` 事件；反之，它对任何  静态碰撞体(Static  Collider)，无论其是否 触发(Trigger)，都不会发送；也就是说 静态碰撞体 之间不会有 `OnTriggerXXX` 事件
 
 
 
