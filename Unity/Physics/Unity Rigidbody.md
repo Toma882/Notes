@@ -1,6 +1,6 @@
 ## Unity Rigidbody 刚体
 
-Rigidbody 刚体 是实现游戏对象的物理行为的主要组件，通过物理模拟控制对象的位置。向对象添加 Rigidbody 组件后，其运动将受到 Unity 物理引擎的控制。
+Rigidbody(刚体) 是实现游戏对象的**物理行为**的主要组件，通过物理模拟控制对象的位置。向对象添加 Rigidbody(刚体) 组件后，其运动将受到 Unity 物理引擎的控制。
 
 刚开始使用 Rigidbody 时，新手常常会遇到游戏物理效果似乎以“慢动作”运行的问题。这实际上是您的模型使用了不适当的缩放导致的。默认的重力设置假定 一个世界单位 对应于 一米 的距离。对于非物理游戏，如果您的模型长度都为 100 个单位，则不会有太大的差别；但在使用物理引擎时，它们将被视为非常大的对象。如果为本应较小的对象使用较大的缩放，它们下落时的视觉速度就会相当缓慢 - 物理引擎认为它们是非常大的物体，正在很远的距离处下落。因此，请确保您的对象缩放后与现实世界的对象差不多（例如，汽车的长度应为 4 个单位 = 4 米左右）。
 
@@ -28,19 +28,19 @@ The physics updates are carried out in measured time steps that don't coincide w
 在大多数情况下，Rigidbody 刚体组件的 睡眠 和 唤醒 是透明发生的。但是，如果通过修改 Transform position 将 `Static Collider` 静态碰撞体（即，没有刚体的碰撞体）移入游戏对象 或 远离游戏对象，则可能无法唤醒游戏对象。这种情况下可能会导致问题，例如，已经从Rigidbody 刚体游戏对象下面移走地板(`Static Collider` 静态碰撞体)时，Rigidbody 刚体游戏对象会悬在空中。在这种情况下，可以使用 `WakeUp` 函数显式唤醒游戏对象。
 
 
-#### mass 质量 drag 阻力
+#### Mass 质量 drag 阻力
 发生碰撞时，mass 质量 较大的对象对 mass 质量 较小的对象的推力要更大一些。您可以想象一下大卡车与小汽车相撞的场景。
 
 drag 阻力可用于减慢对象。 阻力越大，对象越慢。
 
 一个常见的错误是假设重物的下落速度比较轻的物体快。 事实并非如此，下落速度实际上取决于重力和阻力。
 
-#### angularDrag 对象的角阻力
+#### AngularDrag 对象的角阻力
 
 angularDrag 角阻力 可用于减慢对象的旋转。 阻力越大，旋转越慢。
 
 
-#### interpolation 插值
+#### Interpolation 插值
 interpolation 插值 可以 smooth平滑 消除 a fixed frame rate固定帧率 运行物理导致的现象。
 
 By default interpolation is turned off. Commonly rigidbody interpolation is used on the player's character. Physics is running at discrete timesteps, while graphics is renderered at variable frame rates. This can lead to jittery looking objects, because physics and graphics are not completely in sync. The effect is subtle but often visible on the player character, especially if a camera follows the main character. It is recommended to turn on interpolation for the main character but disable it for everything else.
@@ -61,19 +61,19 @@ The effect is subtle but often visible on the player character, especially if a 
 * Interpolate 插值将始终滞后一点，但比外推更流畅。
 * Extrapolate 外推将根据当前速度预测刚体的位置。
 
-#### collisionDetectionMode 碰撞检测模式
+#### Collision Detection Mode 碰撞检测模式
 
 用于设置 Rigidbody刚体 以进行连续碰撞检测，可避免快速移动的对象在未检测到碰撞的情况下穿过其他对象。连续碰撞检测仅支持带有 Sphere球体, Capusle胶囊体 or BoxColliders盒形碰撞体 的刚体。 
 
 * 如果快速对象的碰撞没有任何问题，请保留默认设置， 即 `CollisionDetectionMode.Discrete`。 
-* 可以使用 `CollisionDetectionMode.ContinuousSpeculative`， 其通常成本更低，并且也可以用于运动对象。
+* 可以使用 `CollisionDetectionMode.Continuous Speculative`， 其通常成本更低，并且也可以用于运动对象。推断性 Continuous Collision Detection (CCD)，推测性 CCD 可能会导致幽灵碰撞；还可能导致发生穿隧，因为只会在碰撞检测阶段计算推测性触点。
   
 下两个选项对物理性能有很大影响。
-* 为获得最佳效果，对于快速移动的对象，设置为 `CollisionDetectionMode.ContinuousDynamic`； 
+* 为获得最佳效果，对于快速移动的对象，设置为 `CollisionDetectionMode.Continuous Dynamic`； 
 * 对于需要与之碰撞的其他对象，设置为 `CollisionDetectionMode.Continuous`。 
 
 
-#### constraints 模拟自由度
+#### Constraints 模拟自由度
 
 默认情况下，该属性设置为 `RigidbodyConstraints.None` 允许沿所有轴旋转和移动。 在某些情况下，您可能需要限制 Rigidbody 只能沿某些轴移动或旋转， 例如在开发 2D 游戏时。可以使用按位 OR 运算符组合多个 约束。
 
