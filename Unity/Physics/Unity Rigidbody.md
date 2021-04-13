@@ -10,7 +10,7 @@ Rigidbody(刚体) 是实现游戏对象的**物理行为**的主要组件，通�
 The physics updates are carried out in measured time steps that don't coincide with the frame update. FixedUpdate 在每次进行物理更新前调用，因此在该函数中做出的任何更改都将直接处理。
 
 #### Gravity 重力
-即使不添加任何代码，Rigidbody 对象也受到向下的重力，可以通过 `useGravity` 控制重力是否影响该刚体，默认为开启。
+即使不添加任何代码，Rigidbody 对象也受到向下的重力，可以通过 `useGravity` 控制重力是否影响该刚体，默认为开启。**Kinematic 也会让 Gravity(重力) 失效，无视其 Gravity(重力) 属性。**
 
 #### position, rotation, apply forces
 若想更改 position rotation ，不应该直接更改 Transform 属性进行更改，而应该 apply forces 施加力，让物理引擎计算结果。
@@ -18,7 +18,7 @@ The physics updates are carried out in measured time steps that don't coincide w
 由于刚体组件会接管附加到的游戏对象的运动，因此不应试图借助脚本通过更改变换属性（如位置和旋转）来移动游戏对象。相反，应该施加__力__来推动游戏对象并让物理引擎计算结果。
 
 #### Kinematic 运动学
-在某些情况下，希望物体暂时摆脱物理引擎的控制，直接从脚本代码控制角色，但仍允许 `Triggers` 进行检测，这种通过脚本进行的 非物理 运动，称为 **运动学**。
+在某些情况下，希望物体暂时摆脱物理引擎的控制，直接从脚本代码控制角色，但仍允许 `Triggers` 进行检测，这种通过脚本进行的 非物理 运动，称为 **运动学**。 **Kinematic 也会让 Gravity(重力) 失效。**
 
 `Rigidbody` 可以通过 `isKinematic` 进行开启和关闭 物理引擎，但这会产生性能开销，应谨慎使用。
 
