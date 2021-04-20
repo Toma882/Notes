@@ -1,5 +1,4 @@
-Lua脚本性能优化指南
-=================
+# Lua脚本性能优化
 
 Lua脚本是C语言实现的脚本，广泛应用于客户端扩展脚本，例如魔兽世界等网游。但是Lua的性能一般，并且有许多不好的实现，误用会大大降低系统的性能。
 网络上有一些关于Lua脚本性能优化的资料，但是都是针对Lua撰写的，写作年代较早，一些优化技巧不完全正确，而且没有针对LuaJIT优化过后的代码进行考虑。
@@ -13,27 +12,263 @@ Lua脚本是C语言实现的脚本，广泛应用于客户端扩展脚本，例�
 1. Roberto Ierusalimschy. Lua Performance Tips. http://www.lua.org/gems/sample.pdf
 2. Lua Performance: http://springrts.com/wiki/Lua_Performance
 
-目录
-----
-- [Lua脚本性能优化指南](#lua脚本性能优化指南)
+## 目录
+- [Lua脚本性能优化](#lua脚本性能优化)
   - [目录](#目录)
+  - [Unity xLua](#unity-xlua)
+    - [`transform.localPosition.x` vs `CS.XLuaTest.LuaUnityUtil.CompareLocalPosX`](#transformlocalpositionx-vs-csxluatestluaunityutilcomparelocalposx)
+    - [`number`,`number`,`number` vs `Vector3`](#numbernumbernumber-vs-vector3)
+    - [`_G` vs `_ENV` vs `local`](#_g-vs-_env-vs-local)
+    - [`local` Function](#local-function)
+  - [`string..` & `tabel.concat`](#string--tabelconcat)
   - [变量局部化](#变量局部化)
-  - [多重条件判断](#多重条件判断)
-  - [函数调用](#函数调用)
-  - [尾递归](#尾递归)
-- [Table](#table)
-  - [table追加](#table追加)
+    - [代码和结果](#代码和结果)
     - [结论](#结论)
+  - [多重条件判断](#多重条件判断)
+    - [代码和结果](#代码和结果-1)
+    - [结论](#结论-1)
+  - [函数调用](#函数调用)
+    - [代码和结果](#代码和结果-2)
+    - [结论](#结论-2)
+  - [尾递归](#尾递归)
+    - [代码和结果](#代码和结果-3)
+    - [结论](#结论-3)
+  - [Table 的追加](#table-的追加)
+    - [代码和结果](#代码和结果-4)
+    - [结论](#结论-4)
+  - [userdata vs table](#userdata-vs-table)
 
 
-变量局部化
----------
+## Unity xLua
+
+```c#
+using UnityEngine;
+using XLua;
+
+namespace XLuaTest
+{
+    [LuaCallCSharp]
+    public class LuaUnityUtil
+    {
+        public static void Rotate(Transform transform, float x, float y, float z)
+        {
+            transform.Rotate(x,y,z);
+        }
+        
+        public static int CompareLocalPosX(Transform transform, float x)
+        {
+            return CompareFloat(transform.localPosition.x, x);
+        }
+        
+        public static int CompareFloat(float a, float b)
+        {
+            if (Mathf.Approximately(a, b))
+            {
+                return 0;
+            }
+            else if(a > b)
+            {
+                return 1;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+}
+```
+
+### `transform.localPosition.x` vs `CS.XLuaTest.LuaUnityUtil.CompareLocalPosX`
+```lua
+--195ms
+function test6()
+    local transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        if transform.localPosition.x > 1 then end
+    end
+    local endTime = os.clock()
+    print("test6: "..(endTime - startTime)*1000)
+end
+
+--125ms
+function test7()
+    local transform = self.transform
+    CompareLocalPosX = CS.XLuaTest.LuaUnityUtil.CompareLocalPosX
+    local startTime = os.clock()
+    for i=1,testCount do
+        if CompareLocalPosX(transform, 1.0) == 1 then end
+    end
+    local endTime = os.clock()
+    print("test6: "..(endTime - startTime)*1000)
+end
+```
+
+### `number`,`number`,`number` vs `Vector3`
+
+```lua
+--- 如何确认已经 GCOptimize，查看 xLua 生成的 UnityEngineTransformWrap.cs 文件有 PushUnityEngineVector3 这个函数
+--- xLua 环境， Vector3 未设置为 GCOptimize
+--645ms
+function test2()
+    transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        transform:Rotate (Vector3(15, 30, 45))
+    end
+    local endTime = os.clock()
+    print("test3: "..(endTime - startTime)*1000)
+end
+
+--- xLua 环境， Vector3 已经设置为 GCOptimize
+--277ms
+function test3()
+    transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        transform:Rotate (Vector3(15, 30, 45))
+    end
+    local endTime = os.clock()
+    print("test3: "..(endTime - startTime)*1000)
+end
+
+--144ms
+function test4()
+    transform = self.transform
+    local Rotate = transform.Rotate
+    local startTime = os.clock()
+    for i=1,testCount do
+        Rotate(transform,15, 30, 45)
+    end
+    local endTime = os.clock()
+    print("test4: "..(endTime - startTime)*1000)
+end
+
+--124ms
+function test5()
+    LuaUnityUtilRotate = CS.XLuaTest.LuaUnityUtil.Rotate
+    transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        LuaUnityUtilRotate(transform, 15, 30, 45)
+    end
+    local endTime = os.clock()
+    print("test5: "..(endTime - startTime)*1000)
+end
+
+--- Result
+--- 即使 xLua 对 Vector3 进行了优化，也还是没有在 C# 侧直接使用数值类型的速度快
+```
+
+### `_G` vs `_ENV` vs `local`
+
+```lua
+--700ms
+function useVariableTable()
+    local startTime = os.clock()
+    for i=1,testCount do
+        self.transform:Rotate (15, 30, 45)
+    end
+    local endTime = os.clock()
+    print("useVariableTable: "..(endTime - startTime)*1000)
+end
+
+--140ms
+function useVariableENV()
+    transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        transform:Rotate (15, 30, 45)
+    end
+    local endTime = os.clock()
+    print("useVariableENV: "..(endTime - startTime)*1000)
+end
+
+--138ms
+function useVariableLocal()
+    local transform = self.transform
+    local startTime = os.clock()
+    for i=1,testCount do
+        transform:Rotate (15, 30, 45)
+    end
+    local endTime = os.clock()
+    print("useVariableLocal: "..(endTime - startTime)*1000)
+end
+
+--- Result
+--- 尽量使用 Local 进行缓存
+```
+
+### `local` Function
+
+```lua
+function test8()
+    --951ms
+    local startTime = os.clock()
+    for i=1,testCount do
+        local cube = self.transform:Find("insideCube")
+    end
+    local endTime = os.clock()
+    print("self.transform: "..(endTime - startTime)*1000)
+
+    --471ms
+    local startTime1 = os.clock()
+    local transform = self.transform
+    for i=1,testCount do
+        local cube = transform:Find("insideCube")
+    end
+    local endTime1 = os.clock()
+    print("local transform: "..(endTime1 - startTime1)*1000)
+
+    --435ms
+    local startTime2 = os.clock()
+    local Find = transform.Find
+    for i=1,testCount do
+        local cube = Find(transform, "insideCube")
+    end
+    local endTime2 = os.clock()
+    print("local Find: "..(endTime2 - startTime2)*1000)
+end
+
+--- Result
+--- Find 方式 会让 Lua & C# 端 引起 string 的 GC，可以通过 LuaBehavior.cs 注入的方式 进行引用
+```
+
+## `string..` & `tabel.concat`
+
+```lua
+--1204ms
+function stringConcatWithDot()
+    local startTime = os.clock()
+    local s = ""
+    for i=1,testCount do
+        s = s.."a"
+    end
+    local endTime = os.clock()
+    print("stringConcatWithDot: "..(endTime - startTime)*1000)
+end
+
+--21ms
+function stringConcatWithTable()
+    local startTime = os.clock()
+    local t = {}
+    for i=1,testCount do
+        t[i] = "a"
+    end
+    local s = table.concat( t, '')
+    local endTime = os.clock()
+    print("stringConcatWithTable: "..(endTime - startTime)*1000)
+end
+```
+
+## 变量局部化
 
 Lua变量区分为全局变量和局部变量。Lua为每一个函数分配了一套多达250个的寄存器，并用这些寄存器存储局部变量，这使得Lua中局部变量的访问速度很快。
 相反的是，对于全局变量，Lua需要将全局变量读出存入当前函数的寄存器中，然后完成计算之后再存回全局变量表中。
 这样，一个类似`a = a + b`这样的简单计算，若`a`和`b`为局部变量，则编译之后只生成一条Lua指令，而若为全局变量，则生成4条Lua指令。*Lua Performance Tips*中提到，将全局变量变为局部变量，然后在使用进行访问，速度可以提升约30%，编写如下代码进行实验：
 
-**代码和结果**
+### 代码和结果
 ```lua
 function nonlocal()
     local x = 0
@@ -64,19 +299,19 @@ ID  Case name   t1      t2      t3      t4      t5      avg.    %
 --]]------------------------
 ```
 
-**结论**
-在普通Lua的解释下，行为和//Lua Performance Tips//中所述大致一致，调用全局变量中的函数大约会慢30%。
+### 结论
+在普通Lua的解释下，行为和 Lua Performance Tips 中所述大致一致，调用全局变量中的函数大约会慢30%。
 而在LuaJIT的解释下，两者差异不明显。
 不是一定需要将全局变量中的变量转变为局部变量。
 
 
 
-多重条件判断
-----------
+## 多重条件判断
+
 在Lua中，唯一的数据结构table是哈希表，创建、销毁和迭代都需要创建很多资源。
 本例对比当判断较多条件时，使用连续逻辑表达式和使用table的性能。
 
-**代码和结果**
+### 代码和结果
 ```lua
 function use_or()
     local x = 0
@@ -114,17 +349,17 @@ ID  Case name   t1      t2      t3      t4      t5      avg.    %
 --]]------------------------
 ```
 
-**结论**
+### 结论
 当判断较多逻辑条件时，应当使用简单的逻辑运算，而table创建、销毁和迭代的开销较大，应避免使用。
 尽管使用循环的方法，程序可能具有较好的可读性，但是性能会严重下降。
 使用逻辑表达式判断，采取较好的写法也可以获得可读性。
 
-函数调用
---------
+## 函数调用
+
 函数是我们对功能进行封装的基本方法，但是函数的调用也是具有一定的开销，本例反映了函数调用的时间开销问题。
 其中，直接计算部分在测试函数中内嵌代码进行阶乘计算，而函数调用部分则使用另外封装的阶乘计算函数。
 
-**代码和结果**
+### 代码和结果
 ```lua
 function direct_compute()
     local x = 0
@@ -166,17 +401,17 @@ ID  Case name         t1      t2      t3      t4      t5      avg.     %
 --]]------------------------
 ```
 
-**结论**
+### 结论
 使用函数封装之后，消耗的时间Lua中增加28%，LuaJIT中增加22%。如果是会反复调用的功能，如无必要，如代码复用等问题，则应当尽可能避免多次调用函数。
 
-尾递归
-------
+## 尾递归
+
 在一般的编程语言中，函数递归会占用栈空间，层次很深的递归容易导致栈溢出。
 在一些编程语言，尤其是函数式编程语言中，对一种特殊的递归方法——尾递归进行了优化。
 Lua中也是如此，使得尾递归的函数在递归开始时会释放当前函数的调用栈空间，从而保证多级递归也不会额外占用栈空间。
 本例中展示尾递归的性能，使用普通递归、普通循环和尾递归三种方法编写计算阶乘的程序，并以普通递归方法作的数据为对比的基准。
 
-**代码和结果**
+### 代码和结果
 ```lua
 -- 普通递归
 function fact_recurse(x)
@@ -214,21 +449,17 @@ ID  Case name         t1      t2      t3      t4      t5      avg.     %
 --]]------------------------
 ```
 
-**结论**
+### 结论
 虽然Lua中强调了对尾递归的优化，但是实际执行结果表明，Lua中的尾递归只是对栈空间的分配进行了优化，速度并没有比普通递归有提升。
 而在LuaJIT中，使用尾递归编写的函数具有与普通循环相接近的性能。
 不过尾递归函数不太容易编写，在实际使用过程中**可以**使用。
 
-Table
-=====
+## Table 的追加
 
-table追加
----------------
-
-Lua的标准库函数中，并不是所有函数都实现得很好，尤其是table数据结构的实现性能较差，`table.insert`函数就是一个性能较低的函数。
+Lua的标准库函数中，并不是所有函数都实现得很好，尤其是table数据结构的实现性能较差，`table.insert` 函数就是一个性能较低的函数。
 
 
-**代码和结果**
+### 代码和结果
 ```lua
 function table_insert()
     local t = {}
@@ -277,5 +508,9 @@ ID  Case name       t1      t2      t3      t4      t5      avg.    %
 --]]------------------------
 ```
 
-### 结论 ###
+### 结论
 当需要生成一个数组，并往数组的尾部添加数据时，应当尽可能的使用计数器，如果没办法使用计数器，也应当使用`#`运算符先求出数组的长度，然后使用计数器插入数组。
+
+## userdata vs table
+
+userdata 比 table 更加省内存，但是操作字段比 table 性能更低
