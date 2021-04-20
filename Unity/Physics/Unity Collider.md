@@ -119,9 +119,14 @@ Rigidbody Kinematic Trigger Collider | Y | Y | Y | Y | Y | Y
 
 ## Collision & Trigger 小结
 
-#### 为什么对于需要移动的对象，需要加上 Rigidbody(刚体) 组件？
+#### 为什么对于需要移动的，旋转，缩放的静态碰撞器对象，需要加上 Rigidbody(刚体) 组件？
 Rigidbody(刚体) 的作用本身在于实现游戏对象的**物理**行为的主要组件。  
-目前对于 Staitc Collider(静态碰撞体) ，不建议在游戏运行过程中禁用/启用、移动或缩放 Staitc Collider(静态碰撞体)。如果更改 Staitc Collider(静态碰撞体)，则会导致物理引擎进行额外的内部重新计算，从而导致性能大幅下降。  
+目前对于 Staitc Collider(静态碰撞体) ，不建议在游戏运行过程中禁用/启用、移动、旋转或缩放 Staitc Collider(静态碰撞体)。
+
+**每次的 禁用/启用、移动、旋转或缩放 Staitc Collider(静态碰撞体) ，Unity 都会重新计算所有的 Staitc Collider(静态碰撞体)，然后更新这些 Staitc Collider(静态碰撞体) 的缓存，重算缓存消耗了太多资源，会导致物理引擎进行额外的内部重新计算，从而导致性能大幅下降。**
+
+我们可以随意禁用/启用、移动、旋转或缩放 Dynamic Colliders(动态碰撞体)，并且 Unity 不会重新缓存任何碰撞体体积。
+
 因此如果在游戏过程中需要移动具有 Collider 的对象，还应将 Rigidbody 组件附加到该对象。如果不想使该对象与其他对象进行物理交互，可将 Rigidbody 设置为 kinematic 运动学 刚体。
 
 
