@@ -479,6 +479,19 @@ print(myTable.key1,myMetatable.key1)
 -- 新值1	nil
 ```
 
+**注意点：`__newindex` 只对前面没有分配过的 key 起作用**
+
+```
+local cls = {}
+cls.aa = "aa"
+setmetatable(cls, {__newindex = function(t,k,v)
+        assert(false, "bad key: "..k)
+end})
+cls.aa = "aa"
+cls.bb = "bb"
+print("end")
+```
+
 ### `__tostring` 元方法
 
 ```lua
